@@ -1,73 +1,5 @@
-#!/usr/bin/env python
-
-####################################
-# SETTINGS
-####################################
-
-
-
-DEFAULT_SPOTIFY_ICON      = '/usr/share/pixmaps/spotify.png'
-#CACHE_DIR                 = os.path.join(os.environ['HOME'], '.cache/spotify/Covers/')
-
-
-
-import json
-import requests
 import dbus
-
-# Append album.json?= for json
-API_URL =  'http://ws.spotify.com/search/1/'
-
-
-# Search:
-# Album
-# Artist
-# Track
-
-def search_track(track):
-    """search for a track in the spotify web API
-
-    Keyword arguments:
-    track -- UTF8 string
-    """
-    r = requests.get(API_URL + 'track.json' ,params={'q': track})
-    data = json.loads(r.text)
-
-    # {'page': 1, 'num_results': 405, 'query': 'learn to fly', 'type': 'track', 'limit': 100, 'offset': 0}
-
-    # artists , name, href -> spotify uri
-    for entry in data['tracks']:
-        print(entry)
-
-
-def search_artist(artist):
-    """search for an artist in the spotify web API
-
-    Keyword arguments:
-    artist -- UTF8 string
-    """
-    r = requests.get(API_URL + 'artist.json' ,params={'q': artist})
-    data = json.loads(r.text)
-
-    # name, href -> spotify uri
-    for entry in data['artists']:
-        print(entry)
-
-
-def search_album(album):
-    """search for an album in the spotify web API
-
-    Keyword arguments:
-    album -- UTF8 string
-    """
-    r = requests.get(API_URL + 'album.json' ,params={'q': album})
-    data = json.loads(r.text)
-
-    # 
-
-    # artists , name, href -> spotify uri
-    for entry in data['albums']:
-        print(entry)
+from dbus.exceptions import DBusException
 
 class SpotifyController(object):
     """SpotifyController
@@ -122,7 +54,7 @@ class SpotifyController(object):
     def set_property(self,property_name,value):
         """Set property
 
-
+        TODO: check if any of these actually work
         """
         
         valid_properties = {
@@ -137,5 +69,38 @@ class SpotifyController(object):
         else:
             return False
 
-if __name__=='__main__':
-    Spotify = SpotifyController()
+    def get_metadata(self, value):
+        """
+        """
+
+        metadata = {
+                'title':    'xesam:title',
+                'artist':   'xesam:artist',
+                'album':    'xseam:album',
+                'track':    'xesam:trackNumber',
+                'uri':      'xesam:url',
+                'created':  'xesam:contentCreated',
+                'disc':     'xesam:discNumber',
+                'length':   'mpris:length',
+                'trackid':  'mpris:trackid', 
+                'artUrl':   'mpris:artUrl', }
+        
+        if value in metadata:
+            try:
+                return self.player.GetMetadata().get(metadata[value])
+            except DBusException:
+                print("value not found %s " % e.get_dbus_message())
+
+
+        elif meta == 'formatlength':
+            secs = int(self.get_meta('length')) / 1000000
+            return  "%d:%02d" % ( secs/60, secs%60)
+
+        elif meta == 'url':
+            try:
+                return 'http://open.spotify.com/track/' + self.get_meta('trackid').split(':')[2]
+            except:
+                print ("Track url not found:",e)
+        else:
+            return False
+
