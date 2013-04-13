@@ -102,6 +102,40 @@ class SpotifyController(object):
     def open_uri(self, uri):
         self.player.OpenUri(uri)
 
+    def get_property(self,property_name):
+        """Get the properties from Spotify
+
+        """
+        valid_properties = ['PlaybackStatus','LoopStatus','Shuffle','Rate','Metadata','Volume','Position','MinimumRate',
+                'MaximimRate','CanGoNext','CanGoPrevious','CanPlay','CanPause','CanSeek','CanControl',
+                'CanQuit','Identity','HasTrackList','DesktopEntry','HasTrackList','CanRaise','SupportedUriSchemes',
+                'SupportedMimeTypes','Metadata']
+
+        if property_name in valid_properties:
+            if property_name == 'Volume':
+                return self.player.Volume()
+            else:
+                return self.properties.Get('org.freedesktop.MediaPlayer2',property_name)
+        else:
+            return None
+
+    def set_property(self,property_name,value):
+        """Set property
+
+
+        """
+        
+        valid_properties = {
+                'Volume':   self.player.SetVolume,
+                'Rate':     self.player.SetRate,
+                'Shuffle':  self.player.SetShuffle,
+                'Position': self.player.SetPosition, }
+
+        if property_name in valid_properties:
+            valid_properties[property_name](value)
+            return True
+        else:
+            return False
+
 if __name__=='__main__':
     Spotify = SpotifyController()
-    Spotify.play_pause()
