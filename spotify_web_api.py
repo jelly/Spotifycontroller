@@ -23,8 +23,7 @@ def search_track(track):
     # {'page': 1, 'num_results': 405, 'query': 'learn to fly', 'type': 'track', 'limit': 100, 'offset': 0}
 
     # artists , name, href -> spotify uri
-    for entry in data['tracks']:
-        print(entry)
+    return data['track']
 
 
 def search_artist(artist):
